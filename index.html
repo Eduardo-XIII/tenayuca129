@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Recibos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+
+   <script>
+        window.onload = function() {
+            // Obtener la fecha actual
+            var fechaActual = new Date();
+
+            // Establecer el primer día del mes
+            var primerDiaMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
+            var dia = primerDiaMes.getDate().toString().padStart(2, '0');
+            var mes = (primerDiaMes.getMonth() + 1).toString().padStart(2, '0'); // Los meses comienzan desde 0
+            var anio = primerDiaMes.getFullYear();
+            document.getElementById("fechaInicio").value = `${anio}-${mes}-${dia}`;
+            document.getElementById("fechaProceso").value = `${anio}-${mes}-${dia}`;
+
+            // Establecer el último día del mes
+            var ultimoDiaMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
+            dia = ultimoDiaMes.getDate().toString().padStart(2, '0');
+            mes = (ultimoDiaMes.getMonth() + 1).toString().padStart(2, '0');
+            anio = ultimoDiaMes.getFullYear();
+            //document.getElementById("fechaFin").value = `${anio}-${mes}-${dia}`;
+        }
+    </script>
+
+    <style>
+
+
+    body {
+        font-family: 'Courier New', monospace; /* Cambiar a fuente monoespaciada */
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+       }
+
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        td {
+            background-color: #fff;
+        }
+        .full-width {
+            width: 100%;
+        }
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+
+@media print {
+    .container {
+        max-width: 100%;
+        margin: 0;
+        padding: 20px;
+        border: 2px solid black !important; /* Asegurar bordes alrededor del formulario */
+        box-shadow: none;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    th, td {
+       border: 3px solid black !important; /* Grosor más grueso para los bordes */
+       padding: 8px;
+       text-align: left;
+      font-size: 10px;
+    }
+
+    input, select {
+        border: 1px solid black !important; /* Asegurar bordes en los campos */
+        background-color: transparent;
+        font-size: 9px;
+        width: 100%;
+    }
+    button {
+        display: none; /* Ocultar botones durante la impresión */
+    }
+}
+
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>Recibos Tenayuca 129</h1>
+    <form id="reciboForm">
+
+<!-- Tabla para organizar los campos según el formato de Excel -->
+    <table>
+        <tr>
+            <th>Tipo Impresión:</th>
+            <td>
+                <select id="impresion" name="impresion" required>
+                    <option value="Todos">Todos</option>
+                    <option value="Único">Único</option>
+                </select>
+            </td>
+            <th>Número de Folio:</th>
+            <td><input type="text" id="numeroFolio" name="numeroFolio" readonly style="background-color: #f0f0f0;"></td>
+        </tr>
+
+        <tr>
+            <th>Forma de Pago:</th>
+            <td>
+                <select id="formapago" name="formapago" required>
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Cheque">Cheque</option>
+                    <option value="Parcial">Parcial</option>
+                    <option value="Total">Total</option>
+                    <option value="Otros">Otros</option>
+                </select>
+            </td>
+            <th>Concepto:</th>
+            <td>
+              <select id="concepto" name="concepto" required>
+               <option value="Mantenimiento">Mantenimiento</option>
+               <option value="Pago Portero">Pago Portero</option>
+               <option value="Reparaciones Edificio">Reparaciones Edificio</option>
+               <option value="Plomería">Plomería</option>
+               <option value="Pintura">Pintura</option>
+               <option value="Multas">Multas</option>
+              </select>
+            </td>
+        </tr>
+
+
+        <tr>
+            <th>Domicilio:</th>
+            <td>Tenayuca 129, Letrán Valle</td>
+            <th>Fecha Proceso:</th>
+            <td><input type="date" id="fechaProceso" name="fechaProceso" required></td>
+        </tr>
+        <tr>
+            <th>Fecha Inicio:</th>
+            <td><input type="date" id="fechaInicio" name="fechaInicio" required></td>
+            <th>Fecha Fin:</th>
+            <td><input type="date" id="fechaFin" name="fechaFin" required></td>
+        </tr>
+        <tr>
+            <th>Dpto. No.:</th>
+            <td><input type="text" id="reciboDeptoc" name="reciboDeptoc" value="0" required></td>
+            <th>Total Meses:</th>
+            <td><input type="number" id="totalMeses" name="totalMeses" readonly style="background-color: #f0f0f0;"></td>
+        </tr>
+        <tr>
+            <th>Pago Por:</th>
+            <td><input type="text" id="cantidad" name="cantidad" value="1,250" required></td>
+            <th>Gran Total:</th>
+            <td><input type="text" id="granTotal" name="granTotal" readonly style="background-color: #f0f0f0;"></td>
+        </tr>
+
+        <tr>
+            <th>Letra:</th>
+            <td><input type="text" id="letra" name="letra" readonly style="background-color: lightgray;"></td>
+         </tr>
+    </table>  
+        <button type="submit">Generar Recibos</button>
+    </form>
+</div>
+
+<script>
+    // Función para calcular la diferencia de meses entre dos fechas
+    function calcularMeses(fechaInicio, fechaFin) {
+        const fechaInicioObj = new Date(fechaInicio);
+        const fechaFinObj = new Date(fechaFin);
+
+        const yearsDiff = fechaFinObj.getFullYear() - fechaInicioObj.getFullYear();
+        const monthsDiff = fechaFinObj.getMonth() - fechaInicioObj.getMonth();
+
+        return yearsDiff * 12 + monthsDiff;  // Quitar el +1 para corregir el exceso de un mes
+    }
+
+  
+function numeroALetras(num) {
+    const unidades = ['cero', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+    const decenas = ['', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+    const especiales = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
+    const centenas = ['', 'cien', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+
+    let result = '';
+
+    if (num === 0) return 'cero';
+
+    // Manejar números de diez mil a noventa y nueve mil
+    if (num >= 10000) {
+        const decenasMil = Math.floor(num / 1000);
+        if (decenasMil < 20) {
+            result += especiales[decenasMil - 10] + ' mil ';
+        } else {
+            result += decenas[Math.floor(decenasMil / 10)] + (decenasMil % 10 !== 0 ? ' y ' : ' ') + unidades[decenasMil % 10] + ' mil ';
+        }
+        num %= 1000;
+    }
+
+    // Manejar miles cuando el número es menor a diez mil
+    else if (num >= 1000) {
+        const miles = Math.floor(num / 1000);
+        result += (miles === 1 ? '' : unidades[miles]) + ' mil ';
+        num %= 1000;
+    }
+
+    // Manejar centenas
+    if (num >= 100) {
+        result += centenas[Math.floor(num / 100)] + ' ';
+        num %= 100;
+    }
+
+    // Manejar decenas y unidades
+    if (num >= 20) {
+        result += decenas[Math.floor(num / 10)] + (num % 10 !== 0 ? ' y ' : ' ');
+        num %= 10;
+    } else if (num >= 10) {
+        result += especiales[num - 10] + ' ';
+        num = 0;
+    }
+
+    if (num > 0) {
+        result += unidades[num] + ' ';
+    }
+
+    result += 'pesos 00/100';
+
+    return result.charAt(0).toUpperCase() + result.slice(1);
+}
+
+
+    // Función para actualizar el cálculo del Gran Total
+    function actualizarGranTotal() {
+        const totalMeses = document.getElementById('totalMeses').value;
+        const cantidad = parseFloat(document.getElementById('cantidad').value.replace(/,/g, ''));
+        const granTotal = totalMeses * cantidad;
+        const cantidadConComas = granTotal.toLocaleString(); // Convertir a formato con comas
+        document.getElementById('granTotal').value = cantidadConComas;
+
+        // Convertir el gran total a letras
+        document.getElementById('letra').value = numeroALetras(granTotal);
+    }
+
+    // Formatear el campo de "Por la Cantidad de" con comas
+    document.getElementById('cantidad').addEventListener('input', function() {
+        let valor = this.value.replace(/,/g, ''); // Quitar comas anteriores
+        if (!isNaN(valor) && valor.length > 0) {
+            this.value = parseFloat(valor).toLocaleString();
+        }
+        actualizarGranTotal();
+    });
+
+    // Evento para calcular meses cuando cambian las fechas
+    document.getElementById('fechaFin').addEventListener('change', function() {
+        const fechaInicio = document.getElementById('fechaInicio').value;
+        const fechaFin = document.getElementById('fechaFin').value;
+        
+        if (fechaInicio && fechaFin) {
+            const totalMeses = calcularMeses(fechaInicio, fechaFin);
+            document.getElementById('totalMeses').value = totalMeses;
+            actualizarGranTotal();
+        }
+    });
+
+    // Inicializar jsPDF
+       const { jsPDF } = window.jspdf;
+
+    // Lógica para generar PDF con 15 recibos
+    document.getElementById('reciboForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const doc = new jsPDF();
+
+   // Establecer tipo de letra y tamaño tipon de letra predeterminada Helvetica fuente es 16 punto
+   // doc.setFont("courier");    // Cambia el tipo de letra a Courier
+   // doc.setFontSize(12);       // Cambia el tamaño de la letra a 10 puntos
+
+
+    const fechaProceso = document.getElementById('fechaProceso').value;
+    const fechaInicio  = document.getElementById('fechaInicio').value;
+    const fechaFin     = document.getElementById('fechaFin').value;
+    const totalMeses   = document.getElementById('totalMeses').value;
+    const letra        = document.getElementById('letra').value;
+    const formapago    = document.getElementById('formapago').value;
+    const concepto     = document.getElementById('concepto').value;
+    const cantidad     = document.getElementById('cantidad').value;
+    const granTotal    = document.getElementById('granTotal').value;
+
+    const reciboDeptoc = document.getElementById('reciboDeptoc').value;
+    const impresion   = document.getElementById('impresion').value;
+   
+    let totalRecibos = impresion === "Único" ? 1 : 15;  // Solo 1 recibo si la impresión es única
+        
+    let yOffset = 20; // Posición inicial Y
+    for (let i = 1; i <= totalRecibos; i++) {
+        // Formatear el número de folio con 8 dígitos consecutivos
+        const numeroFolio = `${fechaProceso.substring(0, 4)}${fechaProceso.substring(5, 7)}${String(i).padStart(3, '0')}`;
+        const ciclo = Math.floor((i - 1) / 3) + 1;
+        const reciboDepto = 100 * ciclo + (i % 3 === 0 ? 3 : i % 3);
+
+        let deptoForma       = impresion === "Único" ? reciboDeptoc : reciboDepto;  // Imprime el recibo tecleado
+        
+        // Dibujar el borde de la caja alrededor del recibo
+        doc.rect(10, yOffset - 10, 190, 70); // (X, Y, Ancho, Alto)
+
+        // Establecer color de fondo gris más oscuro para las leyendas
+        doc.setFillColor(220);  // Color gris más oscuro para mejorar visibilidad en impresión
+
+        // Dibujar rectángulos grises detrás de las leyendas
+        doc.rect(10,  yOffset - 5,  90, 6, 'F'); // Forma Pago
+        doc.rect(105, yOffset - 5,  90, 6, 'F'); // Concepto
+        doc.rect(10,  yOffset + 5,  90, 6, 'F'); // Fecha Proceso
+        doc.rect(105, yOffset + 5,  90, 6, 'F'); // Número Folio
+        doc.rect(10,  yOffset + 15, 90, 6, 'F'); // Fecha Inicio
+        doc.rect(105, yOffset + 15, 90, 6, 'F'); // Fecha Fin
+        doc.rect(10,  yOffset + 25, 90, 6, 'F'); // Departamento No.
+        doc.rect(105, yOffset + 25, 90, 6, 'F'); // Total Meses
+        doc.rect(10,  yOffset + 35, 90, 6, 'F'); // Cantidad de
+        doc.rect(105, yOffset + 35, 90, 6, 'F'); // Gran Total
+        doc.rect(10,  yOffset + 45,185, 6, 'F'); // Letra
+
+        // Insertar texto dentro del borde
+        doc.text(`Forma Pago      : ${formapago}`,    15, yOffset);
+        doc.text(`Concepto        : ${concepto}` ,   110, yOffset);
+        doc.text(`Fecha Proceso   : ${fechaProceso}`, 15, yOffset + 10);
+        
+        // Establecer color negro para la leyenda
+        doc.setTextColor(0, 0, 0);
+        doc.text("Número Folio  :", 110, yOffset + 10);
+          
+        // Establecer color rojo para el valor de la variable numeroFolio
+        doc.setTextColor(255, 0, 0);
+        doc.text(numeroFolio, 150, yOffset + 10); // Ajusta la posición X según necesites
+          
+        // Restaurar color de texto negro para el resto del contenido
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Fecha Inicio  : ${fechaInicio}`,  15, yOffset + 20);
+        doc.text(`Fecha Fin     : ${fechaFin}`,    110, yOffset + 20);
+        doc.text(`Dpto No.      : ${deptoForma}`,   15, yOffset + 30);  
+        doc.text(`Total Meses   : ${totalMeses}`,  110, yOffset + 30);
+        doc.text(`Cantidad de   : $${cantidad}`,    15, yOffset + 40);
+        doc.text(`Gran Total    : $${granTotal}`,  110, yOffset + 40);
+        doc.text(`${letra}`,                        15, yOffset + 50);
+        doc.text(`Fecha Pago`                     , 15, yOffset + 60);
+        doc.text(`Firma`                        ,  140, yOffset + 60);
+
+        // Incrementar el offset para el siguiente recibo
+        yOffset += 80;
+
+        // Si se han generado 3 recibos en la página, crear una nueva página
+        if (i % 3 === 0 && i !== 15) {
+            doc.addPage();
+            yOffset = 20; // Reiniciar la posición en la nueva página
+        }
+    }
+
+    // Obtener el año y mes de la fechaProceso
+    const anio = fechaProceso.substring(0, 4);
+    const mes  = fechaProceso.substring(5, 7);
+    
+    // Guardar el PDF
+    doc.save(`Recibos_${anio}${mes}.pdf`);
+});
+
+</script>
+
+</body>
+</html>
