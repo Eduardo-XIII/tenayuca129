@@ -178,9 +178,28 @@
         </tr>
         <tr>
             <th>Dpto. No.:</th>
-            <td><input type="text" id="reciboDeptoc" name="reciboDeptoc" value="0" required></td>
+            <td>
+              <select id="reciboDeptoc" name="reciboDeptoc" required>
+               <option value="999">999</option>
+               <option value="101">101</option>
+               <option value="102">102</option>
+               <option value="103">103</option>
+               <option value="201">201</option>
+               <option value="202">202</option>
+               <option value="203">203</option>
+               <option value="301">301</option>
+               <option value="302">302</option>
+               <option value="303">303</option>
+               <option value="401">401</option>
+               <option value="402">402</option>
+               <option value="403">403</option>
+               <option value="501">501</option>
+               <option value="502">502</option>
+               <option value="503">503</option>
+              </select>
+            </td>
             <th>Total Meses:</th>
-            <td><input type="number" id="totalMeses" name="totalMeses" readonly style="background-color: #f0f0f0;"></td>
+            <td><input type="number" id="totalMeses"  name="totalMeses"  readonly style="background-color: #f0f0f0;"></td>
         </tr>
         <tr>
             <th>Pago Por:</th>
@@ -266,9 +285,9 @@ function numeroALetras(num) {
 
     // Función para actualizar el cálculo del Gran Total
     function actualizarGranTotal() {
-        const totalMeses = document.getElementById('totalMeses').value;
-        const cantidad = parseFloat(document.getElementById('cantidad').value.replace(/,/g, ''));
-        const granTotal = totalMeses * cantidad;
+        const totalMeses  = document.getElementById('totalMeses').value;
+        const cantidad    = parseFloat(document.getElementById('cantidad').value.replace(/,/g, ''));
+        const granTotal   = totalMeses * cantidad;
         const cantidadConComas = granTotal.toLocaleString(); // Convertir a formato con comas
         document.getElementById('granTotal').value = cantidadConComas;
 
@@ -308,7 +327,7 @@ function numeroALetras(num) {
 
    // Establecer tipo de letra y tamaño tipon de letra predeterminada Helvetica fuente es 16 punto
    // doc.setFont("courier");    // Cambia el tipo de letra a Courier
-   // doc.setFontSize(12);       // Cambia el tamaño de la letra a 10 puntos
+    doc.setFontSize(12);       // Cambia el tamaño de la letra a 10 puntos
 
 
     const fechaProceso = document.getElementById('fechaProceso').value;
@@ -325,6 +344,7 @@ function numeroALetras(num) {
     const impresion   = document.getElementById('impresion').value;
    
     let totalRecibos = impresion === "Único" ? 1 : 15;  // Solo 1 recibo si la impresión es única
+
         
     let yOffset = 20; // Posición inicial Y
     for (let i = 1; i <= totalRecibos; i++) {
@@ -334,9 +354,12 @@ function numeroALetras(num) {
         const reciboDepto = 100 * ciclo + (i % 3 === 0 ? 3 : i % 3);
 
         let deptoForma       = impresion === "Único" ? reciboDeptoc : reciboDepto;  // Imprime el recibo tecleado
+        // Aplicar formato de tres caracteres
+        deptoForma = deptoForma.toString().padStart(3, '0');
         
         // Dibujar el borde de la caja alrededor del recibo
-        doc.rect(10, yOffset - 10, 190, 70); // (X, Y, Ancho, Alto)
+        doc.setLineWidth(2);                 // Ajusta el grosor de la línea exterior si es necesario
+        doc.rect(10, yOffset - 10, 190, 75); // (X, Y, Ancho, Alto)
 
         // Establecer color de fondo gris más oscuro para las leyendas
         doc.setFillColor(220);  // Color gris más oscuro para mejorar visibilidad en impresión
@@ -355,28 +378,31 @@ function numeroALetras(num) {
         doc.rect(10,  yOffset + 45,185, 6, 'F'); // Letra
 
         // Insertar texto dentro del borde
-        doc.text(`Forma Pago      : ${formapago}`,    15, yOffset);
-        doc.text(`Concepto        : ${concepto}` ,   110, yOffset);
-        doc.text(`Fecha Proceso   : ${fechaProceso}`, 15, yOffset + 10);
+        doc.text(`Forma Pago    : ${formapago}`,    15, yOffset);
+        doc.text(`Concepto       : ${concepto}` ,   110, yOffset);
+        doc.text(`Fecha Proceso: ${fechaProceso}`, 15, yOffset + 10);
         
         // Establecer color negro para la leyenda
         doc.setTextColor(0, 0, 0);
-        doc.text("Número Folio  :", 110, yOffset + 10);
+        doc.text("Número Folio :", 110, yOffset + 10);
+        doc.text("Dpto No.          :",  15, yOffset + 30);
           
         // Establecer color rojo para el valor de la variable numeroFolio
         doc.setTextColor(255, 0, 0);
-        doc.text(numeroFolio, 150, yOffset + 10); // Ajusta la posición X según necesites
-          
+        doc.text(numeroFolio,   140, yOffset + 10);  // Ajusta la posición X según necesites
+        doc.text(deptoForma,     46, yOffset + 30);  // Ajusta la posición X para que esté alineada después de la leyenda
+         
         // Restaurar color de texto negro para el resto del contenido
         doc.setTextColor(0, 0, 0);
-        doc.text(`Fecha Inicio  : ${fechaInicio}`,  15, yOffset + 20);
-        doc.text(`Fecha Fin     : ${fechaFin}`,    110, yOffset + 20);
-        doc.text(`Dpto No.      : ${deptoForma}`,   15, yOffset + 30);  
+        doc.text(`Periodo Inicio   : ${fechaInicio}`,  15, yOffset + 20);
+        doc.text(`Periodo Fin    : ${fechaFin}`,    110, yOffset + 20);
+        //doc.text(`Dpto No.      : ${deptoForma}`,   15, yOffset + 30); 
+        doc.text("Tenayuca 129 L.V.", 55, yOffset + 30); // Ajusta la posición X según necesites
         doc.text(`Total Meses   : ${totalMeses}`,  110, yOffset + 30);
-        doc.text(`Cantidad de   : $${cantidad}`,    15, yOffset + 40);
-        doc.text(`Gran Total    : $${granTotal}`,  110, yOffset + 40);
+        doc.text(`Cantidad de    : $${cantidad}`,    15, yOffset + 40);
+        doc.text(`Gran Total     : $${granTotal}`,  110, yOffset + 40);
         doc.text(`${letra}`,                        15, yOffset + 50);
-        doc.text(`Fecha Pago`                     , 15, yOffset + 60);
+        doc.text(`Comentario`                     , 15, yOffset + 60);
         doc.text(`Firma`                        ,  140, yOffset + 60);
 
         // Incrementar el offset para el siguiente recibo
