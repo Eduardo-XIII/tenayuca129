@@ -146,6 +146,7 @@
                     <option value="Efectivo">Efectivo</option>
                     <option value="Cheque">Cheque</option>
                     <option value="Parcial">Parcial</option>
+                    <option value="Transferencia">Transferencia</option>
                     <option value="Total">Total</option>
                     <option value="Otros">Otros</option>
                 </select>
@@ -159,6 +160,8 @@
                <option value="Plomería">Plomería</option>
                <option value="Pintura">Pintura</option>
                <option value="Multas">Multas</option>
+               <option value="Otros">Otros</option>
+
               </select>
             </td>
         </tr>
@@ -180,7 +183,7 @@
             <th>Dpto. No.:</th>
             <td>
               <select id="reciboDeptoc" name="reciboDeptoc" required>
-               <option value="999">999</option>
+               <option value="000">000</option>
                <option value="101">101</option>
                <option value="102">102</option>
                <option value="103">103</option>
@@ -384,25 +387,25 @@ function numeroALetras(num) {
         // Establecer color negro para la leyenda
         doc.setTextColor(0, 0, 0);
         doc.text("Número Folio :", 110, yOffset + 10);
-        doc.text("Dpto No.          :",  15, yOffset + 30);
-          
+        doc.text("RECIBO Dpto.  :",  15, yOffset + 30);
+    
         // Establecer color rojo para el valor de la variable numeroFolio
         doc.setTextColor(255, 0, 0);
         doc.text(numeroFolio,   140, yOffset + 10);  // Ajusta la posición X según necesites
-        doc.text(deptoForma,     46, yOffset + 30);  // Ajusta la posición X para que esté alineada después de la leyenda
+        doc.text(deptoForma,     47, yOffset + 30);  // Ajusta la posición X para que esté alineada después de la leyenda
          
         // Restaurar color de texto negro para el resto del contenido
         doc.setTextColor(0, 0, 0);
         doc.text(`Periodo Inicio   : ${fechaInicio}`,  15, yOffset + 20);
-        doc.text(`Periodo Fin    : ${fechaFin}`,    110, yOffset + 20);
-        //doc.text(`Dpto No.      : ${deptoForma}`,   15, yOffset + 30); 
-        doc.text("Tenayuca 129 L.V.", 55, yOffset + 30); // Ajusta la posición X según necesites
-        doc.text(`Total Meses   : ${totalMeses}`,  110, yOffset + 30);
-        doc.text(`Cantidad de    : $${cantidad}`,    15, yOffset + 40);
-        doc.text(`Gran Total     : $${granTotal}`,  110, yOffset + 40);
-        doc.text(`${letra}`,                        15, yOffset + 50);
-        doc.text(`Comentario`                     , 15, yOffset + 60);
-        doc.text(`Firma`                        ,  140, yOffset + 60);
+        doc.text(`Periodo Fin    : ${fechaFin}`,      110, yOffset + 20);
+         
+        doc.text("Tenayuca 129 L.V.", 55, yOffset +  30); // Ajusta la posición X según necesites
+        doc.text(`Total Meses   : ${totalMeses}`,     110, yOffset + 30);
+        doc.text(`Cantidad de     : $${cantidad}`,     15, yOffset + 40);
+        doc.text(`Gran Total     : $${granTotal}` ,   110, yOffset + 40);
+        doc.text(`**${letra}**`                   ,    15, yOffset + 50);
+        doc.text(`Comentario`                     ,    15, yOffset + 60);
+        doc.text(`Firma`                          ,   140, yOffset + 60);
 
         // Incrementar el offset para el siguiente recibo
         yOffset += 80;
